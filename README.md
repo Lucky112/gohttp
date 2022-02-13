@@ -3,11 +3,11 @@ Plain and simple tool to make http requests in parallel
 
 # Usage
 ```
-gohttp -parallel <uint> [url1 ... urlN]
+gohttp [-parallel <uint>] [url1 ... urlN]
 ```
 
 gohttp makes GET requests to urls provided in args and prints md5 hash of recieved response next to each URL. In case of an error, it will be printed instead of a hash. The order of printed urls may differ from the order in args.
-Flag -parallel limits a number of parallel request. By default 10 requests can be done in parallel. 
+Flag -parallel limits a number of parallel request. This flag should be greater than zero. By default, 10 requests can be done in parallel. 
 
 # Example
 ```

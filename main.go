@@ -18,6 +18,12 @@ func main() {
 
 	urls = flag.Args()
 
+	if parallelism == 0 {
+		fmt.Println("Rate of parallelism should be greater than zero!")
+		fmt.Println("Quiting...")
+		return
+	}
+
 	fmt.Println("Rate of parallelism:", parallelism)
 	fmt.Println("Number of URLs: ", len(urls))
 	fmt.Println()
