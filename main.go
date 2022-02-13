@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"flag"
 	"fmt"
+	"net/url"
 	"sync"
 )
 
@@ -30,7 +31,7 @@ func main() {
 
 	go func() {
 		for _, addr := range addresses {
-			addrCh <- addr
+			addrCh <- validateSchema(addr)
 		}
 
 		close(addrCh)
@@ -47,4 +48,13 @@ func main() {
 		}
 	}
 
+}
+
+func validateSchema(address string) string {
+	url, err := url.ParseRequestURI(address)
+	if err != nil || url.Scheme == "" {
+		return "http://" + address
+	}
+
+	return address
 }
