@@ -15,8 +15,8 @@ func main() {
 	addresses = flag.Args()
 
 	fmt.Println("Rate of parallelism:", *p)
-	fmt.Println("Number of agresses: ", len(addresses))
-	fmt.Println("Adresses:")
+	fmt.Println("Number of addresses: ", len(addresses))
+	fmt.Println("Addresses:")
 	for _, addr := range addresses {
 		fmt.Println(addr)
 	}
