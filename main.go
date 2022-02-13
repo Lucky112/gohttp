@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"flag"
 	"fmt"
+	"gohttp/request"
 	"net/url"
 	"sync"
 )
@@ -21,10 +22,10 @@ func main() {
 	fmt.Println("Number of URLs: ", len(urls))
 	fmt.Println()
 
-	hashReq := NewRequestor(md5.New())
+	hashReq := request.NewRequestor(md5.New())
 
 	urlCh := make(chan string)
-	resCh := make(chan requestResult)
+	resCh := make(chan request.HashResult)
 	wg := &sync.WaitGroup{}
 
 	hashReq.Process(*p, urlCh, resCh, wg)
@@ -41,10 +42,10 @@ func main() {
 	}()
 
 	for res := range resCh {
-		if res.err != nil {
-			fmt.Printf("%s : %v\n", res.rawURL, res.err)
+		if res.Err != nil {
+			fmt.Printf("%s : %v\n", res.RawURL, res.Err)
 		} else {
-			fmt.Printf("%s %s\n", res.rawURL, res.hash)
+			fmt.Printf("%s %s\n", res.RawURL, res.Hash)
 		}
 	}
 
