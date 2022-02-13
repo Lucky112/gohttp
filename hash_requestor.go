@@ -32,11 +32,11 @@ func NewRequestor(hasher hash.Hash) *hashRequestor {
 func (r *hashRequestor) Process(parallelism uint, addressCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
 	for i := 0; i < int(parallelism); i++ {
 		wg.Add(1)
-		go r.processSingleAddress(addressCh, resultCh, wg)
+		go r.process(addressCh, resultCh, wg)
 	}
 }
 
-func (r *hashRequestor) processSingleAddress(addressCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
+func (r *hashRequestor) process(addressCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for addr := range addressCh {
