@@ -15,9 +15,9 @@ type hashRequestor struct {
 }
 
 type requestResult struct {
-	address string
-	hash    string
-	err     error
+	rawURL string
+	hash   string
+	err    error
 }
 
 func NewRequestor(hasher hash.Hash) *hashRequestor {
@@ -29,29 +29,29 @@ func NewRequestor(hasher hash.Hash) *hashRequestor {
 	return req
 }
 
-func (r *hashRequestor) Process(parallelism uint, addressCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
+func (r *hashRequestor) Process(parallelism uint, urlCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
 	for i := 0; i < int(parallelism); i++ {
 		wg.Add(1)
-		go r.process(addressCh, resultCh, wg)
+		go r.process(urlCh, resultCh, wg)
 	}
 }
 
-func (r *hashRequestor) process(addressCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
+func (r *hashRequestor) process(urlCh <-chan string, resultCh chan<- requestResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	for addr := range addressCh {
-		hashedResp, err := r.getHashedResponce(addr)
+	for rawURL := range urlCh {
+		hashedResp, err := r.getHashedResponce(rawURL)
 
 		resultCh <- requestResult{
-			address: addr,
-			hash:    hashedResp,
-			err:     err,
+			rawURL: rawURL,
+			hash:   hashedResp,
+			err:    err,
 		}
 	}
 }
 
-func (r *hashRequestor) getHashedResponce(addr string) (string, error) {
-	resp, err := r.makeRequest(addr)
+func (r *hashRequestor) getHashedResponce(rawURL string) (string, error) {
+	resp, err := r.makeRequest(rawURL)
 	if err != nil {
 		return "", err
 	}
@@ -67,8 +67,8 @@ func (r *hashRequestor) makeHash(data []byte) string {
 	return hex.EncodeToString(checkSum)
 }
 
-func (r *hashRequestor) makeRequest(addr string) ([]byte, error) {
-	request, _ := http.NewRequest("GET", addr, nil)
+func (r *hashRequestor) makeRequest(rawURL string) ([]byte, error) {
+	request, _ := http.NewRequest("GET", rawURL, nil)
 	data, err := r.execRequest(request)
 	if err != nil {
 		return nil, err

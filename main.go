@@ -9,32 +9,32 @@ import (
 )
 
 var p *uint
-var addresses []string
+var urls []string
 
 func main() {
 	p = flag.Uint("parallel", 10, "number of parallel requests")
 	flag.Parse()
 
-	addresses = flag.Args()
+	urls = flag.Args()
 
 	fmt.Println("Rate of parallelism:", *p)
-	fmt.Println("Number of addresses: ", len(addresses))
+	fmt.Println("Number of URLs: ", len(urls))
 	fmt.Println()
 
 	hashReq := NewRequestor(md5.New())
 
-	addrCh := make(chan string)
+	urlCh := make(chan string)
 	resCh := make(chan requestResult)
 	wg := &sync.WaitGroup{}
 
-	hashReq.Process(*p, addrCh, resCh, wg)
+	hashReq.Process(*p, urlCh, resCh, wg)
 
 	go func() {
-		for _, addr := range addresses {
-			addrCh <- validateSchema(addr)
+		for _, rawURL := range urls {
+			urlCh <- validateSchema(rawURL)
 		}
 
-		close(addrCh)
+		close(urlCh)
 		wg.Wait()
 
 		close(resCh)
@@ -42,19 +42,19 @@ func main() {
 
 	for res := range resCh {
 		if res.err != nil {
-			fmt.Printf("%s : %v\n", res.address, res.err)
+			fmt.Printf("%s : %v\n", res.rawURL, res.err)
 		} else {
-			fmt.Printf("%s %s\n", res.address, res.hash)
+			fmt.Printf("%s %s\n", res.rawURL, res.hash)
 		}
 	}
 
 }
 
-func validateSchema(address string) string {
-	url, err := url.ParseRequestURI(address)
+func validateSchema(rawURL string) string {
+	url, err := url.ParseRequestURI(rawURL)
 	if err != nil || url.Scheme == "" {
-		return "http://" + address
+		return "http://" + rawURL
 	}
 
-	return address
+	return rawURL
 }
