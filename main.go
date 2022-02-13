@@ -9,16 +9,16 @@ import (
 	"sync"
 )
 
-var p *uint
+var parallelism uint
 var urls []string
 
 func main() {
-	p = flag.Uint("parallel", 10, "number of parallel requests")
+	flag.UintVar(&parallelism, "parallel", 10, "number of parallel requests")
 	flag.Parse()
 
 	urls = flag.Args()
 
-	fmt.Println("Rate of parallelism:", *p)
+	fmt.Println("Rate of parallelism:", parallelism)
 	fmt.Println("Number of URLs: ", len(urls))
 	fmt.Println()
 
@@ -28,7 +28,7 @@ func main() {
 	resCh := make(chan request.HashResult)
 	wg := &sync.WaitGroup{}
 
-	hashReq.Process(*p, urlCh, resCh, wg)
+	hashReq.Process(parallelism, urlCh, resCh, wg)
 
 	go func() {
 		for _, rawURL := range urls {
